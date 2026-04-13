@@ -226,7 +226,7 @@ docker-compose up -d
    - 如果在docker compose up -d 命令构建的过程中,出现无法拉取某个镜像的问题,请参考以下步骤
      1. 先单独拉取失败的镜像,比如,nginx拉取失败,先单独执行`docker pull nginx`(默认latest),一般即可拉取成功
      2. 如果a步骤失败则,进入docker desktop里在左边栏会有docker hub,里面可以搜索你想要的镜像,在右边栏直接下载对应的镜像版本即可
-     3. 或者你可以直接进入https://hub.docker.com网站,这里是镜像网站总部,找到你要的镜像在右边栏会有Run in docker desktop,点击即可
+     3. 或者你可以直接进入https://hub.docker.com 网站,这里是镜像网站总部,找到你要的镜像在右边栏会有Run in docker desktop,点击即可
    - 注意:a,b步骤一般需要代理
 
 ## 十二、注意事项
