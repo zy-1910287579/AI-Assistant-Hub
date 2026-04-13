@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.storm.mapper.VectorDocumentMapper">
+
+    <!-- Result Map: 定义如何将数据库结果集映射到 Java 对象 -->
+    <resultMap id="BaseResultMap" type="com.storm.entity.VectorDocument">
+        <id column="id" property="id"/>
+        <result column="metadata" property="metadata"/>
+        <!-- embedding 字段通常不在此处映射 -->
+    </resultMap>
+
+    <!-- Batch Insert: 批量插入元数据 -->
+    <insert id="batchInsert" parameterType="list">
+        INSERT INTO vector_store (id, metadata) VALUES
+        <foreach collection="documents" item="doc" separator=",">
+            (#{doc.id}, #{doc.metadata})
+        </foreach>
+        ON CONFLICT (id) DO UPDATE SET
+        metadata = EXCLUDED.metadata
+    </insert>
+
+    <!-- Delete By IDs: 根据 ID 列表批量删除 -->
+    <delete id="deleteByIds" parameterType="list">
+        DELETE FROM vector_store
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- Delete By User And Session: 根据 user_id 和 session_id 删除 -->
+    <delete id="deleteByUserAndSession">
+        DELETE FROM vector_store
+        WHERE metadata->>'user_id' = #{userId}
+          AND metadata->>'session_id' = #{sessionId}
+    </delete>
+
+    <!-- Count By Criteria: 检查文件是否存在 -->
+    <select id="countByUserSessionAndFileName" resultType="int">
+        SELECT COUNT(*)
+        FROM vector_store
+        WHERE metadata->>'user_id' = #{userId}
+          AND metadata->>'session_id' = #{sessionId}
+          AND metadata->>'file_name' = #{fileName}
+    </select>
+
+    <!-- Select IDs By Criteria: 查询会话下所有文档 ID -->
+    <select id="selectIdsByUserAndSession" resultType="string">
+        SELECT id
+        FROM vector_store
+        WHERE metadata->>'user_id' = #{userId}
+          AND metadata->>'session_id' = #{sessionId}
+    </select>
+
+</mapper>

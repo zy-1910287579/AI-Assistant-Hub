@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.storm.mapper.AdminMapper">
+
+    <select id="selectUserSpendingStats" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN total_spent &lt;= 500 THEN '低消费 (0-500)'
+                WHEN total_spent &lt;= 2000 THEN '中消费 (500-2000)'
+                ELSE '高消费 (2000+)'
+                END AS level_name,
+            COUNT(*) AS count
+        FROM (
+            -- 子查询：计算每个用户的总消费
+            SELECT user_id, SUM(total_amount) as total_spent
+            FROM t_order
+            WHERE status != -1  -- 排除已取消
+            GROUP BY user_id
+            ) as user_spending
+        GROUP BY level_name
+    </select>
+
+    <select id="selectCourierStats" resultType="java.util.Map">
+        SELECT
+            logistics_company AS company_name,
+            COUNT(*) AS count
+        FROM t_order
+        WHERE logistics_company IS NOT NULL
+        GROUP BY logistics_company
+        ORDER BY count DESC
+    </select>
+    <select id="selectUserPointsStats" resultType="java.util.Map">
+
+        SELECT
+            CASE
+                WHEN points_balance &lt;= 100 THEN '新手 (0-100)'
+                WHEN points_balance &lt;= 1000 THEN '活跃 (100-1000)'
+                ELSE '铁粉 (1000+)'
+                END AS level_name,
+            COUNT(*) AS count
+        FROM t_user
+        GROUP BY level_name
+
+    </select>
+    <select id="selectVipLevelStats" resultType="java.util.Map">
+        SELECT vip_level, COUNT(*) AS count
+        FROM t_user
+        GROUP BY vip_level
+    </select>
+    <select id="selectTicketCategoryStats" resultType="java.util.Map">
+        SELECT category, COUNT(*) AS count
+        FROM t_ticket
+        GROUP BY category
+    </select>
+</mapper>

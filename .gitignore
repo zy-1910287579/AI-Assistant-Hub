@@ -1,0 +1,61 @@
+# ======================
+# Java / Maven (backend)
+# ======================
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+*.class
+*.jar
+*.war
+*.nar
+*.log
+
+# ======================
+# Node / Vue (frontend)
+# ======================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.cache/
+frontend/*.local
+frontend/.env.local
+frontend/.env.*.local
+
+# ======================
+# IDE / Editor
+# ======================
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+*.swp
+*.swo
+*~
+
+# ======================
+# OS generated files
+# ======================
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ======================
+# Docker / Environment
+# ======================
+.env          # 敏感信息不要提交
+*.log
+docker-compose.override.yml
+
+# ======================
+# Logs & Temp
+# ======================
+logs/
+*.log
+tmp/
+temp/

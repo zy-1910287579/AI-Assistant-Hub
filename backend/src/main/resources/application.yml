@@ -1,0 +1,96 @@
+spring:
+  application:
+    name: MySpringAi
+
+
+
+
+  #database
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:postgres}?stringtype=unspecified&timezone=Asia/Shanghai
+    username: ${DB_USER:aiuser}
+    password: ${DB_PASSWORD:123456}
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      data-source-properties:
+        stringtype: unspecified # 某些 PostgreSQL 驱动需要这个
+  # 最关键的配置，告诉 JDBC 驱动如何处理时间类型
+  sql:
+    init:
+      platform: postgresql
+
+  jackson:
+    time-zone: GMT+8 # 或者 Asia/Shanghai，确保与你的期望时区一致
+    date-format: yyyy-MM-dd HH:mm:ss
+    # 重要：在序列化时，将 Date, LocalDateTime 等时间对象格式化为字符串，而不是时间戳数字
+    serialization:
+      write-dates-as-timestamps: false
+
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY}
+      connect-timeout: 10000  # 增加连接超时时间
+      socket-timeout: 20000   # 增加读取超时时间
+      chat:
+        options:
+          model: qwen3-max
+          temperature: 0.7
+      embedding:
+        options:
+          model: text-embedding-v3
+
+    mcp:
+      client:
+        request-timeout: 60s
+        enabled: true
+        sse:
+          connect-timeout: 60s
+          connections:
+            # 定义一个或多个 MCP 服务器连接
+            my-mcp-server: # 自定义服务器名称
+              url: http://${MCP_HOST:localhost}:8000   # Docker 容器暴露的 MCP 服务地址
+        # 开启工具回调自动注册
+        toolcallback:
+          enabled: true
+
+    vectorstore:
+      pgvector:
+        table-name: vector_store
+        dimensions: 1024
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        max-document-batch-size: 1000     #每批次的最大文档数
+#最好还是配一下设置,mp默认扫描不到xml
+mybatis-plus:
+  mapper-locations: classpath*:com/**/mapper/**/*.xml
+  type-aliases-package: com.storm.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+  http:
+    client:
+      factory: jdk
+
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: WARN
+    com.storm: DEBUG
+    #开启Spring AI 的 PgVectorStore 在执行 similaritySearch 时，
+    #会记录检索到的文档（含内容和分数），只需开启日志级别。
+    org.springframework.ai.vectorstore.pgvector.PgVectorStore: DEBUG
+
+
+file:
+  upload:
+    # 这里定义默认值，Docker 启动时会通过环境变量覆盖它
+    path: ${FILE_UPLOAD_PATH:./uploads}
+

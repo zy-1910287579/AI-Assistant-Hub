@@ -1,0 +1,89 @@
+version: "3.8"
+
+services:
+  # ==========================================
+  # 1. 前端服务 (Nginx)
+  # ==========================================
+  front:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: my-ai-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - app-network
+
+  # ==========================================
+  # 2. 后端服务 (Spring Boot)
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: my-ai-backend
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - db
+      - mcp-server
+
+    environment:
+      - DB_HOST=db # 对应 yml 里的 ${DB_HOST}，指向 db 服务
+      - MCP_HOST=mcp-server
+      - DB_USER=aiuser
+      - DB_NAME=postgres
+      - DB_PASSWORD=123456
+        # --- 阿里云 Key (请务必修改这里) ---
+      - DASHSCOPE_API_KEY=你的阿里云apikey
+
+      - FILE_UPLOAD_PATH=/app/uploads
+    volumes:
+      # 【新增】关键！把宿主机的 ./uploads 目录 映射到 容器的 /app/uploads
+      # 这样文件是存在你电脑上的，删了容器文件还在
+      - ./uploads:/app/uploads
+    restart: always
+    networks:
+      - app-network
+  # ==========================================
+  # 3. 数据库服务 (Postgres + pgvector)
+  # ==========================================
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: my-ai-db
+    environment:
+      - POSTGRES_USER=aiuser
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=postgres # 自动创建这个库
+    ports:
+      - "5432:5432" # 映射端口，方便你用 Navicat/DBeaver 连接查看
+    volumes:
+      - pgdata:/var/lib/postgresql/data # 数据持久化，删了容器数据也不丢
+
+      - ./init-sql:/docker-entrypoint-initdb.d
+    restart: always
+    networks:
+      - app-network
+  # ==========================================
+  # 4. MCP 服务 (工具层)
+  # ==========================================
+  mcp-server:
+    image: acuvity/mcp-server-chart:0.9.7
+    container_name: my-ai-mcp
+    ports:
+      - "8000:8000"
+
+    restart: always
+    networks:
+      - app-network
+
+volumes:
+  pgdata: # 声明数据卷，用于持久化数据库文件
+
+networks:
+  app-network:
+    driver: bridge

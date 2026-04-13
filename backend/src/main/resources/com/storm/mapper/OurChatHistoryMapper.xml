@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.storm.mapper.OurChatHistoryMapper">
+
+
+    <!-- 结果集映射 -->
+    <resultMap id="BaseResultMap" type="com.storm.entity.OurChatHistory">
+        <id column="id" property="id"/>
+        <result column="conversation_id" property="conversationId"/>
+        <result column="content" property="content"/>
+        <result column="type" property="type"/>
+        <result column="timestamp" property="timestamp"/>
+    </resultMap>
+
+    <!-- 插入一条记录 -->
+    <insert id="insert" parameterType="com.storm.entity.OurChatHistory">
+        INSERT INTO spring_ai_chat_memory (conversation_id, content, type, timestamp)
+        VALUES (#{conversationId}, #{content}, #{type}, #{timestamp})
+    </insert>
+
+    <!-- 根据 conversation_id 删除所有记录 -->
+    <delete id="deleteByConversationId" parameterType="string">
+        DELETE FROM spring_ai_chat_memory WHERE conversation_id = #{conversationId}
+    </delete>
+
+    <!-- 根据 conversation_id 查询所有记录 -->
+    <select id="selectByConversationId" resultMap="BaseResultMap" parameterType="string">
+        SELECT id, conversation_id, content, type, timestamp
+        FROM spring_ai_chat_memory
+        WHERE conversation_id = #{conversationId}
+        ORDER BY timestamp ASC -- 按时间顺序排列，通常是需要的
+    </select>
+    <select id="selectChatHistoryItems" resultType="com.storm.dto.ChatHistoryItem">
+        SELECT
+            u.content AS userMessage,
+            u.timestamp AS timestamp,
+        a.content AS aiMessage
+        FROM
+            spring_ai_chat_memory u
+            LEFT JOIN
+            spring_ai_chat_memory a
+        ON
+            -- 核心逻辑：关联条件是 ID + 1
+            -- 假设 ID 是严格连续自增的，且总是 User 先插入，AI 后插入
+            a.id = u.id + 1
+            AND a.type = 'ASSISTANT'
+        WHERE
+            u.conversation_id = #{uniqueId}
+          AND u.type = 'USER'
+        ORDER BY
+            u.timestamp ASC
+    </select>
+
+    <!-- 根据 ID 列表批量删除 -->
+    <delete id="deleteByIds" >
+        DELETE FROM spring_ai_chat_memory
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
