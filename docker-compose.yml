@@ -39,7 +39,7 @@ services:
       - DB_NAME=postgres
       - DB_PASSWORD=123456
         # --- 阿里云 Key (请务必修改这里) ---
-      - DASHSCOPE_API_KEY=你的阿里云apikey
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
 
       - FILE_UPLOAD_PATH=/app/uploads
     volumes:
