@@ -48,6 +48,9 @@
   </tr>
 </table>
 
+**API文档界面(部分)** 
+<img src="./images/OpenApi.png" width="1000" alt="api界面">
+
 ## 二、功能特性
 
 - ✅ 前后端分离架构
