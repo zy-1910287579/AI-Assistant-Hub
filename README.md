@@ -4,6 +4,14 @@
 
 这是一个基于 Spring Boot 3 和 Vue 3 的 AI 智能助手应用，为大三实习求职项目，全流程独立开发，可直接 Docker Compose 一键启动体验完整功能。
 
+### 📚 参考文档（完全参照官方文档开发）
+- [Spring AI 官方文档](https://spring.io/projects/spring-ai)
+- [通义千问 API 文档](https://help.aliyun.com/zh/dashscope/)
+- [Spring AI Alibaba 官方文档](https://java2ai.com/docs/quick-start/)
+- [MyBatis-Plus 官方文档](https://baomidou.com/introduce/)
+
+
+
 ### 📸 项目预览
 **登录界面** 
 
