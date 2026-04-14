@@ -143,7 +143,6 @@ public class ChatController {
      出库检索功能:从普通QuestionAnswerAdvisor-->retrievalAugmentationAdvisor模块化优化检索流程
      上述改善已对rag检索回答功能已有很大改善
      进阶:1.可能语义分割会更好?
-         2.实现普通对话和rag智能识别切换?
      */
     @Operation(summary = "单纯RAG对话")
     @GetMapping("ragchat")
